@@ -62,10 +62,30 @@ print(sha1_hash.hexdigest())
 # Cryptohack challenge 4
 E = {"A": 497, "B": 1768, "C": 9739}
 G = (1804, 5368)
+
+
+# Ths is only the x coordinate of point Q from user a so lets find Qy and complete Q
+def curve_to_point_p3mod4(px: int, E: dict[str, int]) -> Tuple[int, int]:
+    y2 = pow(px, 3, E["C"]) + (E["A"] * px) + E["B"]
+    y2 %= E["C"]
+    # now since p is of form = 3 mod 4 then we can use equation to get root y
+    y = pow(y2, (px + 1) // 4, E["C"])
+    return (px, y)
+
+
 xQa = 4726
+E = {"A": 497, "B": 1768, "C": 9739}
+Qa = curve_to_point_p3mod4(xQa, E)
+print("QA:  ", Qa)
 nb = 6534
-xQb = ed_scalar(G, nb, E)
-shared_secret = ed_scalar(xQb, xQa, E)
+shared_secret = ed_scalar(Qa, nb, E)
+print("Shared Secret: ", shared_secret)
+
+Qx = 4726
+p = E["C"]
+a1 = (Qx**3 + 497 * Qx + 1768) % p
+Qy = pow(a1, (p + 1) // 4, p)
+print("QY:  ", Qy)
 
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
