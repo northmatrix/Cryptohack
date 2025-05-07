@@ -125,21 +125,30 @@ b = 3
 p = 310717010502520989590157367261876774703
 
 
-# We also know bobs public key is
-Qbob = (
+# We also kow the senders public key
+Qsender = (
     280810182131414898730378982766101210916,
     291506490768054478159835604632710368904,
 )
 
+# And bobs public key
+Qbob = (272640099140026426377756188075937988094, 51062462309521034358726608268084433317)
 
 # We also know the generator
 Gen = (179210853392303317793440285562762725654, 105268671499942631758568591033409611165)
 
-# we need to find the shared secret which is
-# shared_secret = x coordinate of the shared point which is [Nsender]([Nbob]Gen) = [Nbob]([Nsender]Gen)
-# we also point out that
-# Qbob = [Nbob]Gen
-# [Nsender]Qbob = [Nbob]Qsender
-# we want to find out what sender  sent to bob so we needs to know the senders private number.;:
+
+# Using this information we need to calculate the  private number of bob
+# we know that [Nbob]Gen = Qbob
+
+# Lets use pollig hellman to solve
 iv = "07e2628b590095a5e332d397b8a59aa7"
 flag = "8220b7c47b36777a737f5ef9caa2814cf20c1c1ef496ec21a9b4833da24a008d0870d3ac3a6ad80065c138a2ed6136af"
+
+
+#### Below this is m working
+
+from sympy.ntheory import factorint
+order = 310717010502520989590206149059164677804
+factors = factorint(order)
+print(factors)
