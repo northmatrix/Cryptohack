@@ -2,6 +2,7 @@ from typing import Tuple, Dict
 import hashlib
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
+from sympy.ntheory import sqrt_mod
 
 sha1_hash = hashlib.sha1()
 
@@ -120,7 +121,7 @@ def ed_affine_add(
 
 
 # Double formula
-def ed_affine_double(p: Tuple[int, int]) -> Tuple[int, int]:
+def ed_affine_double(p: Tuple[int, int], E: Dict[str, int]) -> Tuple[int, int]:
     (x1, y1) = p
     a = (3 * pow(x1, 2, E["C"]) + 2 * E["A"] * x1 + 1) * pow(
         2 * E["B"] * y1, -1, E["C"]
@@ -131,3 +132,37 @@ def ed_affine_double(p: Tuple[int, int]) -> Tuple[int, int]:
 
 
 # Montgomery binary algorithm
+def montgomery_bin_algorithm(
+    p: Tuple[int, int], k: int, E: dict[str, int]
+) -> Tuple[int, int]:
+    R0 = p
+    R1 = ed_affine_double(p, E)
+    for i in bin(k)[3:]:
+        if i == "0":
+            (R0, R1) = (ed_affine_double(R0, E), ed_affine_add(R0, R1, E))
+        else:
+            (R0, R1) = (ed_affine_add(R0, R1, E), ed_affine_double(R1, E))
+    return R0
+
+
+E = {"B": 1, "A": 486662, "C": pow(2, 255) - 19}
+
+
+def curve_x_to_point(qx, E):
+    y2 = (pow(qx, 3, E["C"]) + E["A"] * pow(qx, 2, E["C"]) + qx) * pow(
+        E["B"], -1, E["C"]
+    )
+    y2 = y2 % E["C"]
+    y = sqrt_mod(y2, E["C"])
+    return (qx, y)
+
+
+gx = 9
+# so i know that g is correct
+g = curve_x_to_point(gx, E)
+print("G is: ", g)
+s = montgomery_bin_algorithm(g, 0x1337C0DECAFE, E)
+print(s)
+
+
+# Cryptohack challenge 6
