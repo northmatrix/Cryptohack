@@ -1,7 +1,40 @@
 from typing import Tuple, Dict
 import hashlib
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import unpad
 
 sha1_hash = hashlib.sha1()
+
+
+def is_pkcs7_padded(message):
+    padding = message[-message[-1] :]
+    return all(padding[i] == len(padding) for i in range(0, len(padding)))
+
+
+def decrypt_flag(shared_secret: int, iv: str, ciphertext: str):
+    # Derive AES key from shared secret
+    sha1 = hashlib.sha1()
+    sha1.update(str(shared_secret).encode())
+    key = sha1.digest()[:16]
+    # Decrypt flag
+    ciphertext_b = bytes.fromhex(ciphertext)
+    iv_b = bytes.fromhex(iv)
+    cipher = AES.new(key, AES.MODE_CBC, iv_b)
+    plaintext = cipher.decrypt(ciphertext_b)
+
+    if is_pkcs7_padded(plaintext):
+        return unpad(plaintext, 16).decode()
+    else:
+        return plaintext.decode()
+
+
+# Ths is only the x coordinate of point Q from user a so lets find Qy and complete Q
+def curve_to_point_p3mod4(px: int, E: dict[str, int]) -> Tuple[int, int]:
+    y2 = pow(px, 3, E["C"]) + (E["A"] * px) + E["B"]
+    y2 %= E["C"]
+    # now since p is of form = 3 mod 4 then we can use equation to get root y
+    y = pow(y2, (E["C"] + 1) // 4, E["C"])
+    return (px, y)
 
 
 def ed_add(
@@ -35,6 +68,7 @@ def ed_scalar(p: Tuple[int, int], n: int, E: Dict[str, int]) -> Tuple[int, int]:
     return (r[0] % E["C"], r[1] % E["C"])
 
 
+# Cryptohack challenge 1
 E = {"A": 497, "B": 1768, "C": 9739}
 p = (493, 5564)
 q = (1539, 4742)
@@ -42,14 +76,15 @@ r = (4403, 5202)
 p1 = ed_add(p, p, E)
 p2 = ed_add(q, r, E)
 s = ed_add(p1, p2, E)
-print(s)
+print("Challenge 1:  ", s)
 
+
+# Cryptohack challenge 2
 x = (5323, 5438)
 s = ed_scalar(x, 1337, E)
-print(s)
 p = (2339, 2213)
 q = ed_scalar(p, 7863, E)
-print(q)
+print("Challenge 2:  ", q)
 
 # Cryptohack challenge 3
 E = {"A": 497, "B": 1768, "C": 9739}
@@ -57,64 +92,42 @@ q = (815, 3190)
 nb = 1829
 secret = ed_scalar(q, nb, E)
 sha1_hash.update(str(secret[0]).encode())
-print(sha1_hash.hexdigest())
+print("Challenge 3:  ", sha1_hash.hexdigest())
 
 # Cryptohack challenge 4
-E = {"A": 497, "B": 1768, "C": 9739}
 G = (1804, 5368)
-
-
-# Ths is only the x coordinate of point Q from user a so lets find Qy and complete Q
-def curve_to_point_p3mod4(px: int, E: dict[str, int]) -> Tuple[int, int]:
-    y2 = pow(px, 3, E["C"]) + (E["A"] * px) + E["B"]
-    y2 %= E["C"]
-    # now since p is of form = 3 mod 4 then we can use equation to get root y
-    y = pow(y2, (px + 1) // 4, E["C"])
-    return (px, y)
-
-
-xQa = 4726
 E = {"A": 497, "B": 1768, "C": 9739}
-Qa = curve_to_point_p3mod4(xQa, E)
-print("QA:  ", Qa)
+xQa = 4726
+xyQa = curve_to_point_p3mod4(xQa, E)
 nb = 6534
-shared_secret = ed_scalar(Qa, nb, E)
-print("Shared Secret: ", shared_secret)
-
-Qx = 4726
-p = E["C"]
-a1 = (Qx**3 + 497 * Qx + 1768) % p
-Qy = pow(a1, (p + 1) // 4, p)
-print("QY:  ", Qy)
-
-from Crypto.Cipher import AES
-from Crypto.Util.Padding import pad, unpad
-import hashlib
-
-
-def is_pkcs7_padded(message):
-    padding = message[-message[-1] :]
-    return all(padding[i] == len(padding) for i in range(0, len(padding)))
-
-
-def decrypt_flag(shared_secret: int, iv: str, ciphertext: str):
-    # Derive AES key from shared secret
-    sha1 = hashlib.sha1()
-    sha1.update(str(shared_secret).encode())
-    key = sha1.digest()[:16]
-    # Decrypt flag
-    ciphertext_b = bytes.fromhex(ciphertext)
-    iv_b = bytes.fromhex(iv)
-    cipher = AES.new(key, AES.MODE_CBC, iv_b)
-    plaintext = cipher.decrypt(ciphertext_b)
-
-    if is_pkcs7_padded(plaintext):
-        return unpad(plaintext, 16).decode()
-    else:
-        return plaintext.decode()
-
-
+shared_secret = ed_scalar(xyQa, nb, E)
 iv = "cd9da9f1c60925922377ea952afc212c"
 ciphertext = "febcbe3a3414a730b125931dccf912d2239f3e969c4334d95ed0ec86f6449ad8"
+print("Challenge 4:  ", decrypt_flag(shared_secret[0], iv, ciphertext))
 
-print(decrypt_flag(shared_secret[0], iv, ciphertext))
+
+# Cryptohack challenge 5
+# Montgomery binary algorithm in group
+# Addition formula
+def ed_affine_add(
+    p: Tuple[int, int], q: Tuple[int, int], E: Dict[str, int]
+) -> Tuple[int, int]:
+    (x1, y1), (x2, y2) = p, q
+    a = (y2 - y1) * pow(x2 - x1, -1, E["C"])
+    x3 = (E["B"] * pow(a, 2)) - E["A"] - x1 - x2
+    y3 = a * (x1 - x3) - y1
+    return (x3 % E["C"], y3 % E["C"])
+
+
+# Double formula
+def ed_affine_double(p: Tuple[int, int]) -> Tuple[int, int]:
+    (x1, y1) = p
+    a = (3 * pow(x1, 2, E["C"]) + 2 * E["A"] * x1 + 1) * pow(
+        2 * E["B"] * y1, -1, E["C"]
+    )
+    x3 = E["B"] * pow(a, 2, E["C"]) - E["A"] - 2 * x1
+    y3 = a * (x1 - x3) - y1
+    return (x3 % E["C"], y3 % E["C"])
+
+
+# Montgomery binary algorithm
