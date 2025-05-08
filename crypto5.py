@@ -118,12 +118,10 @@ print(ciphertext)
 
 # OK now this is the first challnage so lets write down below what information we have
 
-
 # We know the curve is a = 2 b = 3 p = 310717010502520989590157367261876774703
 a = 2
 b = 3
 p = 310717010502520989590157367261876774703
-
 
 # We also kow the senders public key
 Qsender = (
@@ -138,7 +136,6 @@ Qbob = Point(
 
 # We also know the generator
 Gen = (179210853392303317793440285562762725654, 105268671499942631758568591033409611165)
-
 
 # Using this information we need to calculate the  private number of bob
 # we know that [Nbob]Gen = Qbob
