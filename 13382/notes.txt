@@ -1,0 +1,28 @@
+so i sent my private key and my generator point
+Nme 
+G   
+then they generated my public key and stored it
+Nme* G = Qge now the next step should be for them to multiply with their private key but they dont 
+i just need to give the info that matches my public key which i obviously have
+
+// :IMPORTANT 
+
+OK so we know it resets its state after each request so we cannot accumulate trust so we need to crack it insted of cheating it nowwe know a  few things  
+
+we know the PUBLICKEY, the GENERATOR and we just need to find the private key  this can be done with discrete log so lets do some reaserch and gather the information
+
+1 thing to mention is that we do have control over the generator field so we actually only need to find a generator point on the curve which when multiplied with our private key gives us the public key  
+
+# GENERATOR POINT   WE CAN MODIFY 
+
+x     0x6B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C296
+y     0x4FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE33576B315ECECBB6406837BF51F5
+
+# PUBLIC KEY 
+
+x     0x3B827FF5E8EA151E6E51F8D0ABF08D90F571914A595891F9998A5BD49DFA3531
+y     0xAB61705C502CA0F7AA127DEC096B2BBDC9BD3B4281808B3740C320810888592A
+
+# CURVE IS "secp256r1"  
+
+

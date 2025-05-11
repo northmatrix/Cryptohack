@@ -1,7 +1,0 @@
-import fastecdsa
-from fastecdsa.point import Point
-from fastecdsa.curve import P256
-
-G = P256.G
-Nme = P256.p
-x = Nme * G

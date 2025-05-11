@@ -57,6 +57,9 @@ class Challenge:
         return g * d
 
     def connection_host(self, packet):
+        print("\n\n\n")
+        print(self.trusted_certs["www.bing.com"])
+        print("\n\n\n")
         d = packet["private_key"]
         if abs(d) == 1:
             return "Private key is insecure, certificate rejected."
@@ -67,6 +70,7 @@ class Challenge:
         Q = self.sign_point(g, d)
         cached, host = self.search_trusted(Q)
         if cached:
+            print("HOST IS RETUNRED")
             return host
         else:
             self.trusted_certs[packet_host] = {
@@ -74,6 +78,7 @@ class Challenge:
                 "curve": "secp256r1",
                 "generator": G,
             }
+            print(self.trusted_certs["www.bing.com"])
             return "Site added to trusted connections"
 
     def bing_it(self, s):
