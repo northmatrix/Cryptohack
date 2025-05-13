@@ -1,8 +1,0 @@
- {"option": "sign_time"}
-
-{"msg": "Current time is 5:42", "r": "0xbb6f082321d34dbd786a1566915c6dd5edf879ab0f5add67", "s": "0x78b9788426387918985d3435ef4895b0e6b34573964afc0b"}
-
-{"msg": "Current time is 5:4", "r": "0xdafebf5828783f2ad35534631588a3f629a70fb16982a888", "s": "0x762328e332896721bc44b19a15fd83d888826eb7b71d7c62"}
-
-
-{"option": "verify", "msg": "unlock","r": "0xde4e395ae12e2ab8cf500033d6bee86769be133d9e76b222","s": "0x1bd17d6736a99805224837ae40568927b31b70a9d19c8cbf"}
