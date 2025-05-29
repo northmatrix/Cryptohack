@@ -2,6 +2,7 @@
 import hashlib
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
+from sage.all import GF, EllipticCurve, ZZ, gcd
 
 
 def decrypt_flag(shared_secret):

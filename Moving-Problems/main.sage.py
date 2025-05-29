@@ -4,10 +4,10 @@
 from sage.all_cmdline import *   # import sage library
 
 _sage_const_16 = Integer(16); _sage_const_1331169830894825846283645180581 = Integer(1331169830894825846283645180581); _sage_const_35 = Integer(35); _sage_const_98 = Integer(98); _sage_const_479691812266187139164535778017 = Integer(479691812266187139164535778017); _sage_const_568535594075310466177352868412 = Integer(568535594075310466177352868412); _sage_const_1110072782478160369250829345256 = Integer(1110072782478160369250829345256); _sage_const_800079550745409318906383650948 = Integer(800079550745409318906383650948); _sage_const_1290982289093010194550717223760 = Integer(1290982289093010194550717223760); _sage_const_762857612860564354370535420319 = Integer(762857612860564354370535420319); _sage_const_1 = Integer(1); _sage_const_0 = Integer(0)# sage
-from sage.all import *
 import hashlib
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
+from sage.all import GF, EllipticCurve, ZZ, gcd
 
 
 def decrypt_flag(shared_secret):
@@ -34,12 +34,10 @@ G = E((_sage_const_479691812266187139164535778017 , _sage_const_5685355940753104
 Alice = E((_sage_const_1110072782478160369250829345256 , _sage_const_800079550745409318906383650948 ))
 Bob = E((_sage_const_1290982289093010194550717223760 , _sage_const_762857612860564354370535420319 ))
 
-# https://ctftime.org/writeup/33964
 order = G.order()
 k = _sage_const_1 
 while (p**k - _sage_const_1 ) % order:
     k += _sage_const_1 
-# k = 2
 
 Ee = EllipticCurve(GF(p ** k, "y"), [a, b])
 Ge = Ee(G)
@@ -57,7 +55,6 @@ N = G.order()
 a = Ge.weil_pairing(Q, N)
 b = Ae.weil_pairing(Q, N)
 
-# After a few minutes: na=29618469991922269
 na = b.log(a)
 assert na * G == Alice
 
